@@ -1,10 +1,35 @@
--> Estruturação do programa:
-    .Classe Tasks(tarefas):
-     Fiz uma classe básica, com apenas uma variável(contador) que ganha +1 
-sempre que um novo processo começa. O contador nem se provou necessário, mas mantive no código pois achei interessante. O resto da classe são métodos(walk, stay, check, sum) que simulam cálculos, operações com vetores ou simplesmente ficar rodando "gastando tempo" da CPU.
-   .Classe Scheduler(escalonador):
-    Minha classe escalonador é inicializada incorporando a lista de processos gerados na main (que será comentada a frente) ela inicializa a variável "self.quantum_time" com o valor global declarado, ou seja, fica ao critério do usuário o tempo de quantum, a mudança é feita de maneira simples. Junto a inicialização também chamo o método "exec" responsável por realizar o RoundRobin, que eu implementei da seguinte forma: primeiro um "while" inicializa os processos com .start(), ele da o tempo de quantum para o processo rodar e para, repetindo para todos os processos em "process_list", após todos incializados, um segundo "while" chama o primeiro processo da lista de volta com "SIGCONT" e aguarda o processo com "join(target=quantum)", essa função aguarda até o tempo de quantum, mas caso o processo termine antes, ela não espera o tempo de quantum completo e continua (!), tornando o código muito otimizado, após o tempo de join, "SIGSTOP", e faço uma checagem para saber se o processo está em espera ou se já está concluído com ".is_alive()", os concluídos formam uma lista de "completed" que será exposta na tela no final.
-   .Main():
-   Minha classe main cria os processos (p1, p2, p3 e p4) usando "Tasks.(nome_do_método)" como target, junta os mesmos em uma lista, e passa como parâmetro para o objeto "Scheduler".
--------------------------------------------COMO USAR--------------------------------------------------
-Apenas execute o arquivo main("python3 main.py"). Como o objeto "escalonador" já tem em seu "__init__" a chamada do método exec(), tudo fica automático. Durante a execução deixei evidenciado quando os processos começam e quando terminam. Passei uma lista (p1,p2,p3,p4) e de propósito p1 é o mais lento disparado, assim fica mais claro que mesmo p1 começando primeiro, o RR controlou os processos e interferiu em quem termina mais cedo.	
+# Round Robin Scheduler
+
+SimulaÃ§Ã£o de um escalonador de processos baseado no algoritmo **Round Robin**, utilizando **Python** e **multiprocessamento**.
+
+## Estrutura do Projeto
+
+###  Classe `Tasks`
+Representa as tarefas que serÃ£o escalonadas.  
+- Possui um contador que incrementa a cada novo processo iniciado (mais por fins ilustrativos).
+- ContÃ©m mÃ©todos como:
+  - `walk()`
+  - `stay()`
+  - `check()`
+  - `sum()`
+
+Esses mÃ©todos simulam diferentes comportamentos de uso de CPU, como cÃ¡lculos, operaÃ§Ãµes com vetores ou loops de espera para consumir tempo de CPU.
+
+###  Classe `Scheduler`
+ResponsÃ¡vel pela lÃ³gica do **escalonador Round Robin**.
+- Inicializada com a lista de processos gerados no `main`.
+- O tempo de quantum Ã© definido por uma variÃ¡vel global (`quantum_time`), facilmente ajustÃ¡vel pelo usuÃ¡rio.
+- O mÃ©todo `exec()` realiza o controle Round Robin da seguinte forma:
+  1. Inicializa todos os processos com `.start()`, atribuindo o tempo de quantum.
+  2. ApÃ³s iniciar todos, entra em um loop onde:
+     - Retoma o processo atual com `SIGCONT`.
+     - Aguarda com `join(timeout=quantum)` â€” que sÃ³ espera atÃ© o quantum ou atÃ© o processo terminar (otimizando o tempo de execuÃ§Ã£o).
+     - Pausa o processo com `SIGSTOP`.
+     - Verifica se ainda estÃ¡ vivo com `.is_alive()`.
+     - Processos finalizados sÃ£o adicionados a uma lista de concluÃ­dos, que Ã© exibida ao final.
+
+### ExecuÃ§Ã£o
+Basta executar o arquivo principal:
+
+```bash
+python3 main.py
